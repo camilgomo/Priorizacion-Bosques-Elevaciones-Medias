@@ -449,16 +449,3 @@ shpFOCAL75 = rasterToPolygons(FOCAL_Aves_Elev75)
 plot(shpFOCAL75)
 
 raster::shapefile(shpFOCAL75, "shpFOCAL75.shp")
-
-setwd("C:/Users/ProCAT Costa Rica/Downloads")
-
-raster1.50 = raster("Focal_Areas 2 sp50.tif")
-raster1.75 = raster ("Focal_Areas 2 sp75.tif")
-raster2.50 = raster("Focal_Areas 2 sp50_CANorm_CR_Pan.tif")
-raster2.75 = raster("Focal_Areas 2 sp75_CANorm_CR_Pan.tif")
-
-rastercomp1 =stack(raster1.50, raster1.75)
-plot(rastercomp1)
-
-rastercomp2 =stack(raster2.50, raster2.75)
-plot(rastercomp2)
