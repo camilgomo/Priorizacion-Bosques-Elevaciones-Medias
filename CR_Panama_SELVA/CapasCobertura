@@ -1,5 +1,6 @@
 ## Las capas de cobertura de Panama se pueden acceder en la siguiente URL
 ## https://stridata-si.opendata.arcgis.com/search?page=2&tags=panama
+## El archivo raster se puede descargar de la siguiente URL https://www.sinia.gob.pa/datos/Cobertura_boscosa/CoberturaBocosaUsoSuelo_2021_25k_TIF.zip
 ## Descripcion: Capa de Cobertura Boscosa y Uso de la Tierra 2021, realizado por el Ministerio de Ambiente (MIAMBIENTE) de Panamá. Este mapa fue elaborado con imágenes del satélite Sentinel 2-A proveniente de la Agencia Espacial Europea (ESA) y para la verificación de los datos generados, se utilizaron las plataformas SecureWatch y Planet con alta resolución espacial y temporal respectivamente, lo cual permite identificar y cuantificar los diferentes tipos la cobertura forestal. Y cuenta además, con una escala local 1:25,000, hecho sin precedentes para el sector ambiental.
 
 ## Las capas de cobertura de Costa Rica se acceden a través del SNIT
