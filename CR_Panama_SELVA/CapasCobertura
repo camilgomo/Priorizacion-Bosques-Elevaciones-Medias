@@ -1,0 +1,7 @@
+## Las capas de cobertura de Panama se pueden acceder en la siguiente URL
+## https://stridata-si.opendata.arcgis.com/search?page=2&tags=panama
+
+## Las capas de cobertura de Costa Rica se acceden a través del SNIT
+## en los servicios OGC de la secretaria REDD+ en la URL https://www.snitcr.go.cr/ico_servicios_ogc_info?k=bm9kbzo6ODY=&nombre=Secretar%C3%ADa%20REDD+
+## la capa puede leerse y descargarse desde programa SIG (e.g. QGis) con la siguiente direccion WMS http://ceniga.go.cr/geoserver/REDD/wms?
+
