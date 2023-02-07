@@ -1,9 +1,9 @@
 library(raster)
 library(rworldmap)
 
-# Set working directory
+# Set working directory, elegir la ruta de su carpeta
 
-setwd("C:/Users/ProCAT Costa Rica/Downloads")
+setwd("C:/xxx")
 
 # llamar los diferentes tiles de los raster altura de dosel
 
