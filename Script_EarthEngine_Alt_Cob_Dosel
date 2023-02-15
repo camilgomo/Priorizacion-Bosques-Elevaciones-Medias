@@ -1,0 +1,94 @@
+//Cambiar el nombre del país en ADM0_NAME
+//pueden importar de FAO GAUL otro nivel administrativo (departamentos, provincias) según requieran
+var pais = paises.filter(ee.Filter.eq('ADM0_NAME','Venezuela'));
+print(pais);
+//Cambiar el nombre del país en el nombre de la capa
+Map.addLayer(pais,['green'],'Venezuela');
+
+//Importamos y extraemos rango de interés de capas de elevación, altura, cobertura y pérdida de dosel, establecemos parámetros de visualización
+//acá cambié de DEM porque este venía en Image sobre la que se puede hacer clip, y no sabía cómo hacer "clip" sobre ImageCollection que es como viene ALOS
+var dem = ee.Image("NASA/NASADEM_HGT/001").select('elevation');
+var elev_pais = dem.clip(pais);
+//De elevación extraemos el rango altitudinal
+var rango = elev_pais.updateMask(elev_pais.lte(2250)).updateMask(elev_pais.gte(1000));
+        //set all values to 1 (instead of keeping the original values)
+        //.gt(1000).selfMask()
+        //rename the band
+        //.rename('rango');
+//Map.addLayer(elev_pais, elevVis, 'Elevación');
+var elevVis = {
+  min: 1000,
+  max: 2250,
+  palette: ['0000ff', '00ffff', 'ffff00', 'ff0000', 'ffffff']
+};
+Map.addLayer(rango, elevVis,'Rango especies focales');
+
+
+//De altura de dosel seleccionamos el rango deseado y también extraemos el rango altitudinal
+var altura_dosel = ee.Image("users/nlang/ETH_GlobalCanopyHeight_2020_10m_v1");
+var alt_dosel_pais = altura_dosel.updateMask(elev_pais.lte(2250)).updateMask(elev_pais.gte(1000));
+var altdosel_vis = {
+  min: 15.0,
+  max: 50.0,
+  palette: ['#010005', '#150b37', '#3b0964', '#61136e', '#85216b', '#a92e5e', '#cc4248', '#e75e2e', '#f78410', '#fcae12', '#f5db4c', '#fcffa4'],
+};
+var alt15 = alt_dosel_pais.gte(15);
+Map.addLayer(alt15, {palette:['black', 'white']}, "Dosel de interés h");
+Map.addLayer(alt_dosel_pais, altdosel_vis, 'Altura dosel 0=>15m');
+
+//De la cobertura de dosel extraemos el rango altitudinal
+var cobertura_dosel = ee.Image('UMD/hansen/global_forest_change_2021_v1_9').select('treecover2000');
+var perdida = ee.Image('UMD/hansen/global_forest_change_2021_v1_9').select('lossyear');
+var cob_dosel_pais = cobertura_dosel.updateMask(elev_pais.lte(2250)).updateMask(elev_pais.gte(1000));
+var cobdosel_vis = {
+  bands: ['treecover2000'],
+  min: 70,
+  max: 100,
+  palette: ['black', 'green']
+};
+var cob70 = cob_dosel_pais.gte(70);
+Map.addLayer(cob70, {palette:['black', 'yellow']}, "Dosel de interés %");
+Map.addLayer(cob_dosel_pais, cobdosel_vis, 'Cobertura dosel =>70%');
+
+var perdida_vis = {
+  bands: ['lossyear'],
+  min: 0,
+  max: 21,
+  palette: ['pink', 'red']
+};
+
+//Aquí reducimos los pixeles de altura de dosel de 10m a 30m, usando la capa de cobertura como referencia
+var alt15r = alt15
+  .reduceResolution({reducer: ee.Reducer.mean(), maxPixels: 1024})
+  .reproject({crs: cob70.projection()});
+
+//Este paso es para exportar las imágenes obtenidas, acá se exportan a Asset pero pueden cambiar de imagen y exportar a Drive
+//Tuve problemas con exportar las capas cob_dosel_pais y alt_dosel_pais así que dejo el caso que me funcionó
+
+//Export.image.toAsset({
+//  image: alt15r,
+//  description: 'Altura_dosel_en_rango',
+//  scale: 30,
+//  maxPixels: 10000000000000
+//  });   
+
+//Export.image.toAsset({
+//  image: cob70,
+//  description: 'Cobertura_dosel_en_rango',
+//  scale: 30,
+//  maxPixels: 10000000000000
+//  });
+  
+//Estas líneas se activan luego de la exportación (y se inactivan las anteriores), después de exportadas las importan desde CLOUD ASSETS (panel a la izquierda) 
+//donde dice imagefromAsset ponen el nombre con que importan la imagen
+//este paso es para verificar las imágenes y compararlas con las originales que ya estaban dentro del script
+
+//Map.addLayer(imagefromAsset, {palette:['blue', 'black']}, 'Cobertura rango');
+//Map.addLayer(imagefromAsset1, {palette:['black', 'cyan']}, 'Altura rango');
+
+
+//Llevamos al mapa la banda global, no filtrada, de pérdida como referencia.  Recuerden que el raster de cobertura está sobre treecover2000
+//En este mismo script pueden procesar la banda de pérdida si desean agregar las líneas necesarias siguiendo los ejemplos de este script
+Map.addLayer(perdida, perdida_vis, 'Pérdida anual');
+
+Map.centerObject(pais, 8);
