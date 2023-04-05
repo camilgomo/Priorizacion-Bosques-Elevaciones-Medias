@@ -1,0 +1,35 @@
+library(raster)
+library(rgdal)
+
+# Cargamos la capa de Intact Landscape Forest IFL
+
+ifl = readOGR(dsn = ".", layer = "IFL_2020_CRPan")
+
+# Rasterizamos con referencia a la capa de elevacion de interes
+
+raster.ifl = rasterize(ifl, elev.rango,field = 1)
+
+#Sumamos la capa de elevacion con el resultado de IFL
+ifl.elev = elev.rango + raster.ifl
+plot(ifl.elev)
+
+# Reclasificamos la capa en donde coincide la elevacion de interes
+
+ifl750.2000 <-calc(ifl.elev, fun=function(x){ x[x < 1.9] <- 0; return(x)} )
+ifl750.2000<-calc(ifl750.2000, fun=function(x){ x[x > 1.9] <- 1; return(x)} )
+plot(ifl750.2000)
+
+# Llamamos ambas capas y las remuestreamos con la capa de cobertura de interes o AOI
+
+r1 <- raster("E:/Selva/AreasProtegidas/CoberturaArborea750_2000_presencia.tif")
+r2 <- raster("E:/Selva/ifl750_2000_pres.tif")
+
+resamp.ifl = resample(r2, r1, method='bilinear')
+
+# Rellenamos las areas de AOI sin valores "NAs" con los valores del ILF "1"
+r3 <- cover(r2, r1)
+plot(r3)
+
+# Exportamos la capa resultante
+writeRaster(r3, "CoberturaInteres_IFL_pres.tif", 
+            format = "GTiff", overwrite=TRUE)
